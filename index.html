@@ -35,7 +35,7 @@
         <p>Sign in to manage your fleet</p>
       </div>
 
-      <form id="loginForm">
+      <form id="loginForm" onsubmit="event.preventDefault(); if (typeof login === 'function') { login(); } return false;">
 
         <label for="pin">Admin Security PIN</label>
 
