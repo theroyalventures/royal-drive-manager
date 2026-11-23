@@ -2,152 +2,551 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101827">
-<title>Royal Drive | Management</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+
+  <title>Royal Drive | Fleet Management</title>
+
+  <meta name="description" content="Royal Drive Delhi NCR Fleet and Booking Management System">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
 </head>
+
 <body>
 
-<div id="login" class="login">
-  <div class="login-box">
-    <div class="logo">RD</div>
-    <h1>ROYAL DRIVE</h1>
-    <p>Fleet Management System</p>
-    <input id="pin" type="password" placeholder="Admin PIN">
-    <button onclick="login()">LOGIN</button>
-    <small id="loginError"></small>
-  </div>
-</div>
+  <!-- LOGIN SCREEN -->
+  <section id="loginScreen" class="login-screen">
 
-<div id="app" class="hidden">
-  <aside id="sidebar">
-    <div class="brand"><span class="logo small">RD</span>
-      <div><b>ROYAL DRIVE</b><small>DELHI NCR</small></div>
+    <div class="login-card">
+
+      <div class="brand-logo">
+        <div class="logo-icon">RD</div>
+        <div class="brand-name">ROYAL <span>DRIVE</span></div>
+        <div class="brand-location">DELHI NCR</div>
+      </div>
+
+      <div class="login-heading">
+        <h1>Welcome Back</h1>
+        <p>Sign in to manage your fleet</p>
+      </div>
+
+      <form id="loginForm">
+
+        <label for="pin">Admin Security PIN</label>
+
+        <div class="pin-wrapper">
+          <input
+            type="password"
+            id="pin"
+            name="pin"
+            placeholder="Enter your PIN"
+            inputmode="numeric"
+            autocomplete="current-password"
+            maxlength="12"
+            required
+          >
+
+          <button type="button" id="togglePin" class="pin-toggle" aria-label="Show PIN">
+            Show
+          </button>
+        </div>
+
+        <p id="loginError" class="error-message" role="alert"></p>
+
+        <button type="submit" id="loginButton" class="primary-button">
+          <span id="loginButtonText">SECURE LOGIN</span>
+        </button>
+
+      </form>
+
+      <div class="login-footer">
+        <span class="security-dot"></span>
+        Protected Admin Access
+      </div>
+
+      <p class="copyright">
+        © 2026 Royal Drive Delhi NCR
+      </p>
+
     </div>
-    <nav>
-      <button onclick="page('dashboard')">⌂ Dashboard</button>
-      <button onclick="page('fleet')">▣ My Fleet</button>
-      <button onclick="page('bookings')">▦ Bookings</button>
-      <button onclick="page('requirements')">☷ Requirements</button>
-      <button onclick="page('finance')">₹ Finance</button>
-      <button onclick="page('feedback')">☆ Feedback</button>
-      <button onclick="page('suggestions')">✧ Suggestions</button>
-      <button onclick="page('settings')">⚙ Settings</button>
-    </nav>
-    <button class="logout" onclick="logout()">Sign out ↗</button>
-  </aside>
 
-  <main>
-    <header>
-      <button class="menu" onclick="toggleMenu()">☰</button>
-      <div><small>ROYAL DRIVE / MANAGEMENT</small><h2 id="heading">Dashboard</h2></div>
-      <span class="avatar">RD</span>
-    </header>
+  </section>
 
-    <section id="dashboard" class="screen">
-      <div class="welcome">
-        <div><h2>Business Overview</h2><p>Manage your fleet and bookings.</p></div>
-        <button onclick="openBooking()">+ New Booking</button>
+
+  <!-- MAIN APPLICATION -->
+  <div id="appScreen" class="app-screen hidden">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+
+      <div class="sidebar-brand">
+        <div class="logo-icon">RD</div>
+
+        <div>
+          <div class="brand-name">ROYAL <span>DRIVE</span></div>
+          <small>FLEET MANAGEMENT</small>
+        </div>
+
       </div>
-      <div class="stats">
-        <article><small>Total Vehicles</small><h2 id="totalFleet">0</h2></article>
-        <article><small>Total Bookings</small><h2 id="totalBookings">0</h2></article>
-        <article><small>Base Rental</small><h2 id="totalRevenue">₹0</h2></article>
-        <article><small>Active Bookings</small><h2 id="activeBookings">0</h2></article>
+
+      <div class="sidebar-label">MAIN MENU</div>
+
+      <nav class="navigation">
+
+        <button class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">▦</span>
+          Dashboard
+        </button>
+
+        <button class="nav-item" data-page="bookings">
+          <span class="nav-icon">▤</span>
+          Bookings
+        </button>
+
+        <button class="nav-item" data-page="fleet">
+          <span class="nav-icon">▣</span>
+          My Fleet
+        </button>
+
+        <button class="nav-item" data-page="requirements">
+          <span class="nav-icon">◷</span>
+          Requirements
+        </button>
+
+        <button class="nav-item" data-page="feedback">
+          <span class="nav-icon">☆</span>
+          Guest Feedback
+        </button>
+
+        <button class="nav-item" data-page="suggestions">
+          <span class="nav-icon">✧</span>
+          Suggestions
+        </button>
+
+        <div class="sidebar-label">MANAGEMENT</div>
+
+        <button class="nav-item" data-page="reports">
+          <span class="nav-icon">▥</span>
+          Reports
+        </button>
+
+        <button class="nav-item" data-page="settings">
+          <span class="nav-icon">⚙</span>
+          Settings
+        </button>
+
+      </nav>
+
+      <div class="sidebar-bottom">
+
+        <div class="admin-profile">
+          <div class="admin-avatar">A</div>
+          <div>
+            <strong>Administrator</strong>
+            <small>Royal Drive Admin</small>
+          </div>
+        </div>
+
+        <button id="logoutButton" class="logout-button">
+          ↪ Logout
+        </button>
+
       </div>
-      <div class="panel">
-        <h3>My Fleet</h3>
-        <div id="dashboardFleet"></div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <header class="topbar">
+
+        <div class="topbar-left">
+          <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
+            ☰
+          </button>
+
+          <div>
+            <h2 id="pageTitle">Dashboard</h2>
+            <p id="pageSubtitle">Your business overview</p>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="system-status">
+            <span id="connectionDot" class="status-dot"></span>
+            <span id="connectionText">Connecting...</span>
+          </div>
+
+          <div id="currentDate" class="current-date"></div>
+        </div>
+
+      </header>
+
+
+      <div class="content-area">
+
+        <!-- DASHBOARD -->
+        <section id="page-dashboard" class="page-section active">
+
+          <div class="welcome-section">
+            <div>
+              <h1>Business Overview</h1>
+              <p>Monitor your fleet and rental operations.</p>
+            </div>
+
+            <button class="primary-button small" data-action="new-booking">
+              + New Booking
+            </button>
+          </div>
+
+          <div class="stats-grid">
+
+            <article class="stat-card">
+              <div class="stat-label">Total Vehicles</div>
+              <div id="statVehicles" class="stat-value">0</div>
+              <div class="stat-note">Registered fleet</div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-label">Total Bookings</div>
+              <div id="statBookings" class="stat-value">0</div>
+              <div class="stat-note">All bookings</div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-label">Total Revenue</div>
+              <div id="statRevenue" class="stat-value">₹0</div>
+              <div class="stat-note">Recorded booking revenue</div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-label">Active Bookings</div>
+              <div id="statActive" class="stat-value">0</div>
+              <div class="stat-note">Upcoming and ongoing</div>
+            </article>
+
+          </div>
+
+          <div class="dashboard-grid">
+
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <h3>Recent Bookings</h3>
+                  <p>Latest fleet activity</p>
+                </div>
+
+                <button class="text-button" data-page="bookings">
+                  View All →
+                </button>
+              </div>
+
+              <div id="recentBookings" class="table-container">
+                <div class="empty-state">No bookings available.</div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <h3>Fleet Overview</h3>
+                  <p>Vehicle availability</p>
+                </div>
+              </div>
+
+              <div id="fleetOverview">
+                <div class="empty-state">No fleet data available.</div>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- BOOKINGS -->
+        <section id="page-bookings" class="page-section">
+
+          <div class="section-heading">
+            <div>
+              <h1>Booking Management</h1>
+              <p>Create and manage all vehicle bookings.</p>
+            </div>
+
+            <button class="primary-button small" id="addBookingButton">
+              + Add Booking
+            </button>
+          </div>
+
+          <div class="filter-bar">
+            <input id="bookingSearch" type="search" placeholder="Search guest, phone or booking ID">
+
+            <select id="bookingStatusFilter">
+              <option value="all">All Status</option>
+              <option value="Upcoming">Upcoming</option>
+              <option value="Ongoing">Ongoing</option>
+              <option value="Complete">Complete</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <div id="bookingsContainer" class="panel table-container">
+            <div class="empty-state">Loading bookings...</div>
+          </div>
+
+        </section>
+
+
+        <!-- FLEET -->
+        <section id="page-fleet" class="page-section">
+
+          <div class="section-heading">
+            <div>
+              <h1>My Fleet</h1>
+              <p>Manage owned and partner vehicles.</p>
+            </div>
+
+            <button class="primary-button small" id="addVehicleButton">
+              + Add Vehicle
+            </button>
+          </div>
+
+          <div class="filter-bar">
+            <input id="fleetSearch" type="search" placeholder="Search vehicle">
+
+            <select id="fleetTypeFilter">
+              <option value="all">All Fleet</option>
+              <option value="Own">Own Fleet</option>
+              <option value="Partner">Partner Fleet</option>
+            </select>
+          </div>
+
+          <div id="fleetContainer" class="fleet-grid">
+            <div class="empty-state">Loading fleet...</div>
+          </div>
+
+        </section>
+
+
+        <!-- REQUIREMENTS -->
+        <section id="page-requirements" class="page-section">
+
+          <div class="section-heading">
+            <div>
+              <h1>Customer Requirements</h1>
+              <p>Manage customer enquiries and rental requirements.</p>
+            </div>
+
+            <button class="primary-button small" id="addRequirementButton">
+              + Add Requirement
+            </button>
+          </div>
+
+          <div id="requirementsContainer" class="panel table-container">
+            <div class="empty-state">No requirements available.</div>
+          </div>
+
+        </section>
+
+
+        <!-- FEEDBACK -->
+        <section id="page-feedback" class="page-section">
+
+          <div class="section-heading">
+            <div>
+              <h1>Guest Feedback</h1>
+              <p>Review customer experiences and ratings.</p>
+            </div>
+
+            <button class="primary-button small" id="addFeedbackButton">
+              + Add Feedback
+            </button>
+          </div>
+
+          <div id="feedbackContainer" class="feedback-grid">
+            <div class="empty-state">No feedback available.</div>
+          </div>
+
+        </section>
+
+
+        <!-- SUGGESTIONS -->
+        <section id="page-suggestions" class="page-section">
+
+          <div class="section-heading">
+            <div>
+              <h1>Suggestions</h1>
+              <p>Track business ideas and improvement suggestions.</p>
+            </div>
+
+            <button class="primary-button small" id="addSuggestionButton">
+              + Add Suggestion
+            </button>
+          </div>
+
+          <div id="suggestionsContainer" class="panel table-container">
+            <div class="empty-state">No suggestions available.</div>
+          </div>
+
+        </section>
+
+
+        <!-- REPORTS -->
+        <section id="page-reports" class="page-section">
+
+          <div class="section-heading">
+            <div>
+              <h1>Business Reports</h1>
+              <p>Analyse your fleet performance.</p>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+
+            <article class="stat-card">
+              <div class="stat-label">Own Fleet Revenue</div>
+              <div id="reportOwnRevenue" class="stat-value">₹0</div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-label">Partner Fleet Revenue</div>
+              <div id="reportPartnerRevenue" class="stat-value">₹0</div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-label">Host Payout</div>
+              <div id="reportHostPayout" class="stat-value">₹0</div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-label">Royal Drive Earnings</div>
+              <div id="reportEarnings" class="stat-value">₹0</div>
+            </article>
+
+          </div>
+
+          <div id="reportsContainer" class="panel">
+            <div class="empty-state">Reports will appear here.</div>
+          </div>
+
+        </section>
+
+
+        <!-- SETTINGS -->
+        <section id="page-settings" class="page-section">
+
+          <div class="section-heading">
+            <div>
+              <h1>Settings</h1>
+              <p>Configure your application and security.</p>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+
+            <div class="panel">
+              <h3>Backend Configuration</h3>
+
+              <label for="apiUrl">Google Apps Script Web App URL</label>
+
+              <input
+                id="apiUrl"
+                type="url"
+                placeholder="https://script.google.com/macros/s/.../exec"
+              >
+
+              <button id="saveApiButton" class="primary-button small">
+                Save Backend URL
+              </button>
+
+              <p id="apiMessage" class="helper-text"></p>
+            </div>
+
+            <div class="panel">
+              <h3>Security</h3>
+
+              <p>Change your administrator login PIN.</p>
+
+              <label for="oldPin">Current PIN</label>
+              <input id="oldPin" type="password" inputmode="numeric">
+
+              <label for="newPin">New PIN</label>
+              <input id="newPin" type="password" inputmode="numeric">
+
+              <label for="confirmPin">Confirm New PIN</label>
+              <input id="confirmPin" type="password" inputmode="numeric">
+
+              <button id="changePinButton" class="primary-button small">
+                Update PIN
+              </button>
+
+              <p id="securityMessage" class="helper-text"></p>
+            </div>
+
+            <div class="panel">
+              <h3>Business Pricing Rules</h3>
+
+              <div class="pricing-rule">
+                <strong>Own Fleet</strong>
+                <p>Guest fee: 0% | Host commission: 0%</p>
+              </div>
+
+              <div class="pricing-rule">
+                <strong>Partner Fleet</strong>
+                <p>Guest fee: 10% | Host commission: 20%</p>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
       </div>
-      <div class="panel">
-        <h3>Recent Bookings</h3>
-        <div id="recentBookings"></div>
-      </div>
-      <div class="panel">
-        <h3>Current Rate Card</h3>
-        <div id="rateCards"></div>
-      </div>
-    </section>
 
-    <section id="fleet" class="screen hidden">
-      <div class="section-title"><div><h2>My Fleet</h2><p>Manage own and partner vehicles.</p></div>
-        <button onclick="openFleet()">+ Add Vehicle</button></div>
-      <div id="fleetList" class="cards"></div>
-    </section>
+      <footer class="app-footer">
+        Royal Drive Delhi NCR · Fleet Management System
+      </footer>
 
-    <section id="bookings" class="screen hidden">
-      <div class="section-title"><div><h2>Bookings</h2><p>Booking register and guest details.</p></div>
-        <button onclick="openBooking()">+ New Booking</button></div>
-      <input id="searchBooking" placeholder="Search guest or vehicle..." oninput="renderBookings()">
-      <div id="bookingList"></div>
-    </section>
+    </main>
 
-    <section id="requirements" class="screen hidden">
-      <div class="section-title"><div><h2>Requirements</h2><p>Guest and vehicle requirements.</p></div>
-        <button onclick="openRequirement()">+ Add Requirement</button></div>
-      <div id="requirementList" class="cards"></div>
-    </section>
-
-    <section id="finance" class="screen hidden">
-      <h2>Finance Overview</h2>
-      <div class="stats">
-        <article><small>Base Rental</small><h2 id="finBase">₹0</h2></article>
-        <article><small>Guest Service Fees</small><h2 id="finFees">₹0</h2></article>
-        <article><small>Host Commission</small><h2 id="finCommission">₹0</h2></article>
-        <article><small>Host Payout</small><h2 id="finPayout">₹0</h2></article>
-      </div>
-      <div class="panel">
-        <h3>Commission Rules</h3>
-        <p>Own fleet: No guest service charge and no host commission.</p>
-        <p>Partner fleet: 10% guest service charge + 20% host commission.</p>
-      </div>
-    </section>
-
-    <section id="feedback" class="screen hidden">
-      <h2>Guest Feedback</h2>
-      <div id="feedbackList" class="cards"></div>
-    </section>
-
-    <section id="suggestions" class="screen hidden">
-      <div class="section-title"><div><h2>Suggestions</h2><p>Business improvement ideas.</p></div>
-        <button onclick="openSuggestion()">+ Add Suggestion</button></div>
-      <div id="suggestionList" class="cards"></div>
-    </section>
-
-    <section id="settings" class="screen hidden">
-      <h2>Settings</h2>
-      <div class="panel">
-        <label>Google Apps Script Web App URL</label>
-        <input id="apiUrl" placeholder="Paste your Apps Script /exec URL">
-        <button onclick="saveSettings()">Save Connection</button>
-        <p id="connectionStatus">Demo mode</p>
-      </div>
-    </section>
-
-    <footer>ROYAL DRIVE · DELHI NCR</footer>
-  </main>
-</div>
-
-<div id="modal" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h2 id="modalTitle">Add Record</h2>
-      <button class="close" onclick="closeModal()">×</button>
-    </div>
-    <form id="recordForm">
-      <div id="formFields" class="form-grid"></div>
-      <div class="actions">
-        <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
-        <button type="submit">Save Record</button>
-      </div>
-      <p id="formError" class="error"></p>
-    </form>
   </div>
-</div>
 
-<div id="toast"></div>
-<script src="app.js"></script>
+
+  <!-- MODAL CONTAINER -->
+  <div id="modalContainer" class="modal-container hidden">
+
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+    <div class="modal-card">
+
+      <div class="modal-header">
+        <h3 id="modalTitle">Add Record</h3>
+
+        <button id="closeModalButton" class="close-button" aria-label="Close">
+          ×
+        </button>
+      </div>
+
+      <div id="modalBody"></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- NOTIFICATION -->
+  <div id="toast" class="toast" role="status"></div>
+
+
+  <!-- APPLICATION SCRIPTS -->
+  <script src="app.js"></script>
+
 </body>
 </html>
