@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Royal Drive — Customer Enquiries</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f1f4f8;font-family:Arial,sans-serif;color:#172033}
+header{background:#101827;color:white;padding:20px}
+header h2{margin:0}
+main{max-width:1200px;margin:25px auto;padding:0 15px}
+.card{background:white;padding:20px;border-radius:14px;box-shadow:0 5px 20px #0000000b;margin-bottom:18px}
+input,select{padding:11px;border:1px solid #d5dce5;border-radius:8px;font-size:14px}
+button{padding:10px 14px;border:0;border-radius:8px;background:#fecd50;font-weight:bold;cursor:pointer}
+button.danger{background:#fee2e2;color:#991b1b}
+button.secondary{background:#e2e8f0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{background:#f8fafc;padding:15px;border-radius:10px}
+.stat strong{display:block;font-size:25px;margin-top:6px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #e5e9ef;font-size:13px;vertical-align:top}
+th{background:#f8fafc}
+.small{font-size:12px;color:#64748b}
+#dashboard{display:none}
+#message{margin:12px 0;white-space:pre-wrap}
+.status{font-weight:bold}
+@media(max-width:650px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<h2>Royal Drive — Enquiry Management</h2>
+<p class="small" style="color:#cbd5e1">Customer Enquiries Dashboard</p>
+</header>
+
+<main>
+<section id="login" class="card">
+<h3>Admin Login</h3>
+<div class="row">
+<input id="pin" type="password" placeholder="Enter Admin PIN">
+<button onclick="login()">Login</button>
+</div>
+<div id="loginMessage"></div>
+</section>
+
+<section id="dashboard">
+<div class="stats">
+<div class="stat">Total Enquiries<strong id="totalCount">0</strong></div>
+<div class="stat">New<strong id="newCount">0</strong></div>
+<div class="stat">Contacted<strong id="contactedCount">0</strong></div>
+<div class="stat">Confirmed<strong id="confirmedCount">0</strong></div>
+</div>
+
+<div class="card" style="margin-top:18px">
+<div class="row">
+<h3 style="margin-right:auto">Customer Enquiries</h3>
+<input id="search" placeholder="Search name, phone, vehicle..." oninput="render()">
+<button onclick="loadData()">Refresh</button>
+<button class="secondary" onclick="logout()">Logout</button>
+</div>
+<div id="message"></div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Enquiry</th>
+<th>Customer</th>
+<th>Vehicle</th>
+<th>Trip</th>
+<th>Estimate</th>
+<th>Availability</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="rows"></tbody>
+</table>
+</div>
+</div>
+</section>
+</main>
+
+<script>
+const API_URL="PASTE_YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL_HERE";
+let token="";
+let enquiries=[];
+
+function api(action,data={}){
+ return new Promise((resolve,reject)=>{
+  const callback="rdAdmin_"+Date.now()+"_"+Math.floor(Math.random()*1000);
+  const script=document.createElement("script");
+  const timer=setTimeout(()=>{cleanup();reject(new Error("API timeout"));},20000);
+
+  function cleanup(){
+   clearTimeout(timer);
+   delete window[callback];
+   script.remove();
+  }
+
+  window[callback]=result=>{
+   cleanup();
+   if(!result.ok) reject(new Error(result.error || "API error"));
+   else resolve(result);
+  };
+
+  const url=new URL(API_URL);
+  url.searchParams.set("action",action);
+  url.searchParams.set("callback",callback);
+  url.searchParams.set("token",token);
+  url.searchParams.set("data",JSON.stringify(data));
+  script.src=url.toString();
+  script.onerror=()=>{cleanup();reject(new Error("Connection failed"));};
+  document.body.appendChild(script);
+ });
+}
+
+async function login(){
+ const pin=document.getElementById("pin").value;
+ try{
+  const result=await new Promise((resolve,reject)=>{
+   const cb="rdLogin_"+Date.now();
+   const s=document.createElement("script");
+   const u=new URL(API_URL);
+   u.searchParams.set("action","login");
+   u.searchParams.set("callback",cb);
+   u.searchParams.set("pin",pin);
+   const t=setTimeout(()=>{delete window[cb];s.remove();reject(new Error("Login timeout"));},15000);
+   window[cb]=r=>{clearTimeout(t);delete window[cb];s.remove();resolve(r);};
+   s.onerror=()=>{clearTimeout(t);delete window[cb];reject(new Error("Connection failed"));};
+   s.src=u.toString();
+   document.body.appendChild(s);
+  });
+  if(!result.ok) throw new Error(result.error);
+  token=result.token;
+  document.getElementById("login").style.display="none";
+  document.getElementById("dashboard").style.display="block";
+  await loadData();
+ }catch(e){
+  document.getElementById("loginMessage").textContent=e.message;
+ }
+}
+
+async function loadData(){
+ try{
+  const result=await api("getAll");
+  enquiries=(result.data && result.data.customerEnquiries) || [];
+  render();
+  document.getElementById("message").textContent="Data refreshed.";
+ }catch(e){
+  document.getElementById("message").textContent=e.message;
+ }
+}
+
+function render(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const filtered=enquiries.filter(x=>
+  [x.id,x.guest,x.phone,x.vehicleName,x.email]
+   .join(" ").toLowerCase().includes(q)
+ );
+
+ document.getElementById("totalCount").textContent=enquiries.length;
+ document.getElementById("newCount").textContent=
+  enquiries.filter(x=>x.status==="New").length;
+ document.getElementById("contactedCount").textContent=
+  enquiries.filter(x=>x.status==="Contacted").length;
+ document.getElementById("confirmedCount").textContent=
+  enquiries.filter(x=>x.status==="Confirmed").length;
+
+ const tbody=document.getElementById("rows");
+ tbody.innerHTML="";
+
+ filtered.slice().reverse().forEach(x=>{
+  const tr=document.createElement("tr");
+  const td=(value)=>{
+   const cell=document.createElement("td");
+   cell.textContent=value || "—";
+   return cell;
+  };
+
+  tr.appendChild(td(x.id+"\n"+(x.createdAt||"")));
+  tr.appendChild(td(x.guest+"\n"+x.phone+"\n"+(x.email||"")));
+  tr.appendChild(td(x.vehicleName+"\n"+x.fleetType));
+  tr.appendChild(td("Pickup: "+x.start+"\nReturn: "+x.end+
+    "\n"+x.billableDays+" billable day(s)"));
+  tr.appendChild(td("Base: ₹"+Number(x.base||0).toLocaleString("en-IN")+
+    "\nGuest fee: ₹"+Number(x.guestFee||0).toLocaleString("en-IN")+
+    "\nTotal: ₹"+Number(x.total||0).toLocaleString("en-IN")));
+  tr.appendChild(td(x.availability));
+
+  const statusCell=document.createElement("td");
+  const select=document.createElement("select");
+  ["New","Contacted","Confirmed","Rejected","Closed"].forEach(s=>{
+   const option=document.createElement("option");
+   option.value=s;
+   option.textContent=s;
+   select.appendChild(option);
+  });
+  select.value=x.status || "New";
+  select.onchange=()=>updateStatus(x.id,select.value);
+  statusCell.appendChild(select);
+  tr.appendChild(statusCell);
+
+  const actionCell=document.createElement("td");
+  const del=document.createElement("button");
+  del.textContent="Delete";
+  del.className="danger";
+  del.onclick=()=>deleteEnquiry(x.id);
+  actionCell.appendChild(del);
+  tr.appendChild(actionCell);
+
+  tbody.appendChild(tr);
+ });
+}
+
+async function updateStatus(id,status){
+ try{
+  await api("updateEnquiryStatus",{id:id,status:status});
+  document.getElementById("message").textContent="Status updated.";
+  await loadData();
+ }catch(e){
+  alert(e.message);
+ }
+}
+
+async function deleteEnquiry(id){
+ if(!confirm("Delete this enquiry permanently?")) return;
+ try{
+  await api("deleteEnquiry",{id:id});
+  await loadData();
+ }catch(e){
+  alert(e.message);
+ }
+}
+
+function logout(){
+ token="";
+ enquiries=[];
+ document.getElementById("dashboard").style.display="none";
+ document.getElementById("login").style.display="block";
+ document.getElementById("pin").value="";
+}
+</script>
+</body>
+</html>
