@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book a Car | Royal Drive Delhi NCR</title>
+<style>
+:root{--gold:#fecd50;--dark:#101827;--muted:#64748b}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6fa;color:var(--dark);font-family:Arial,sans-serif}
+header{background:#101827;color:white;padding:24px 18px;text-align:center}
+header strong{font-size:24px}
+header p{color:#cbd5e1;margin-bottom:0}
+main{max-width:680px;margin:28px auto;padding:0 15px}
+.card{background:white;border-radius:18px;padding:24px;box-shadow:0 8px 30px #0f172a12}
+h2{margin-top:0}
+label{display:block;font-weight:600;margin:15px 0 7px}
+input,select,textarea{width:100%;padding:13px;border:1px solid #d6dce5;border-radius:9px;font-size:15px}
+textarea{min-height:80px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.price{background:#fff8df;padding:16px;border-radius:12px;margin-top:18px}
+.price div{display:flex;justify-content:space-between;margin:7px 0}
+.total{font-size:21px;font-weight:bold;border-top:1px solid #e6d8a5;padding-top:12px}
+button{width:100%;border:0;background:var(--gold);padding:15px;border-radius:10px;font-size:16px;font-weight:bold;margin-top:20px;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}
+#message{margin-top:15px;padding:13px;border-radius:9px;display:none;white-space:pre-wrap}
+.success{background:#dcfce7;color:#166534}
+.error{background:#fee2e2;color:#991b1b}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+@media(max-width:500px){.grid{grid-template-columns:1fr}.card{padding:18px}}
+</style>
+</head>
+<body>
+<header>
+<strong>ROYAL DRIVE</strong>
+<p>Self Drive Car Rental · Delhi NCR</p>
+</header>
+
+<main>
+<div class="card">
+<h2>Submit Your Booking Enquiry</h2>
+<p class="small">Share your trip details. Our team will contact you to confirm availability and final booking terms.</p>
+
+<form id="enquiryForm">
+<label>Your Full Name *</label>
+<input name="guest" required maxlength="100" placeholder="Enter your name">
+
+<label>Mobile Number *</label>
+<input name="phone" required type="tel" maxlength="16" placeholder="10-digit mobile number">
+
+<label>Email Address</label>
+<input name="email" type="email" placeholder="Optional">
+
+<label>Select Vehicle *</label>
+<select name="vehicleName" id="vehicle" required>
+<option value="">Choose your car</option>
+<option value="Maruti Fronx">Maruti Fronx — ₹3,000/day</option>
+<option value="Maruti Baleno">Maruti Baleno — ₹2,500/day</option>
+<option value="Tata Punch">Tata Punch — ₹2,000/day</option>
+</select>
+
+<div class="grid">
+<div>
+<label>Pickup Date & Time *</label>
+<input name="start" id="start" type="datetime-local" required>
+</div>
+<div>
+<label>Return Date & Time *</label>
+<input name="end" id="end" type="datetime-local" required>
+</div>
+</div>
+
+<label>Pickup Location</label>
+<input name="pickupLocation" placeholder="Airport / Hotel / Address">
+
+<label>Return Location</label>
+<input name="returnLocation" placeholder="Return location">
+
+<label>Additional Requirements</label>
+<textarea name="notes" placeholder="Tell us about your trip or requirements"></textarea>
+
+<!-- Honeypot -->
+<div style="position:absolute;left:-9999px" aria-hidden="true">
+<label>Website</label>
+<input name="website" tabindex="-1" autocomplete="off">
+</div>
+
+<div class="price">
+<div><span>Daily Rate</span><strong id="rate">₹0</strong></div>
+<div><span>Billable Days</span><strong id="days">0</strong></div>
+<div><span>Base Rental</span><strong id="base">₹0</strong></div>
+<div><span>Partner Guest Fee</span><strong id="fee">₹0</strong></div>
+<div class="total"><span>Estimated Total</span><span id="total">₹0</span></div>
+<p class="small">Billing is calculated in 24-hour blocks. Any additional partial day is rounded up. Final amount and availability are subject to confirmation by Royal Drive.</p>
+</div>
+
+<button id="submitBtn" type="submit">Submit Enquiry</button>
+<div id="message"></div>
+</form>
+</div>
+</main>
+
+<script>
+const API_URL = "PASTE_YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+const rates = {
+ "Maruti Fronx":{rate:3000,partner:false},
+ "Maruti Baleno":{rate:2500,partner:false},
+ "Tata Punch":{rate:2000,partner:true}
+};
+
+const form = document.getElementById("enquiryForm");
+const vehicle = document.getElementById("vehicle");
+const start = document.getElementById("start");
+const end = document.getElementById("end");
+const btn = document.getElementById("submitBtn");
+const message = document.getElementById("message");
+const money = n => "₹" + Number(n || 0).toLocaleString("en-IN");
+
+function calculate(){
+ const v = rates[vehicle.value];
+ const a = new Date(start.value);
+ const b = new Date(end.value);
+ let hours = 0, days = 0, base = 0, fee = 0;
+
+ if(v && start.value && end.value && b > a){
+   hours = (b-a)/3600000;
+   days = Math.ceil(hours/24);
+   base = days*v.rate;
+   fee = v.partner ? Math.round(base*.10) : 0;
+ }
+
+ document.getElementById("rate").textContent = money(v ? v.rate : 0);
+ document.getElementById("days").textContent = days;
+ document.getElementById("base").textContent = money(base);
+ document.getElementById("fee").textContent = money(fee);
+ document.getElementById("total").textContent = money(base+fee);
+}
+[vehicle,start,end].forEach(el=>el.addEventListener("change",calculate));
+
+function showMessage(text,type){
+ message.textContent=text;
+ message.className=type;
+ message.style.display="block";
+}
+
+function submitJSONP(data){
+ return new Promise((resolve,reject)=>{
+   const callback="rdCallback_"+Date.now();
+   const script=document.createElement("script");
+   const timer=setTimeout(()=>{
+     cleanup();
+     reject(new Error("Server did not respond. Please try again."));
+   },25000);
+
+   function cleanup(){
+     clearTimeout(timer);
+     delete window[callback];
+     script.remove();
+   }
+
+   window[callback]=result=>{
+     cleanup();
+     resolve(result);
+   };
+
+   const url=new URL(API_URL);
+   url.searchParams.set("action","submitEnquiry");
+   url.searchParams.set("callback",callback);
+   url.searchParams.set("data",JSON.stringify(data));
+   script.src=url.toString();
+   script.onerror=()=>{
+     cleanup();
+     reject(new Error("Unable to connect to server."));
+   };
+   document.body.appendChild(script);
+ });
+}
+
+form.addEventListener("submit",async e=>{
+ e.preventDefault();
+ message.style.display="none";
+
+ if(API_URL.includes("PASTE_YOUR")){
+   showMessage("Please configure the Apps Script Web App URL first.","error");
+   return;
+ }
+
+ const data=Object.fromEntries(new FormData(form).entries());
+ const a=new Date(data.start), b=new Date(data.end);
+
+ if(!data.vehicleName){showMessage("Please select a vehicle.","error");return;}
+ if(isNaN(a)||isNaN(b)||b<=a){
+   showMessage("Please enter a valid pickup and return time.","error");
+   return;
+ }
+ if(a < new Date(Date.now()-5*60*1000)){
+   showMessage("Pickup time cannot be in the past.","error");
+   return;
+ }
+
+ btn.disabled=true;
+ btn.textContent="Submitting...";
+
+ try{
+   const result=await submitJSONP(data);
+   if(!result.ok) throw new Error(result.error || "Submission failed.");
+
+   showMessage(
+     "Thank you! Your enquiry has been submitted.\n"+
+     "Enquiry ID: "+result.enquiryId+"\n"+
+     "Estimated Total: "+money(result.pricing.total)+"\n"+
+     "Availability: "+result.availability+
+     "\n\nThis is an enquiry, not a confirmed booking. Our team will contact you.",
+     "success"
+   );
+   form.reset();
+   calculate();
+ }catch(err){
+   showMessage(err.message,"error");
+ }finally{
+   btn.disabled=false;
+   btn.textContent="Submit Enquiry";
+ }
+});
+</script>
+</body>
+</html>
